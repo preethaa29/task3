@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Quiz App</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+        }
+
+        #quiz-container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+
+        .question {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            text-align: left;
+        }
+
+        .option {
+            background-color: #ddd;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .option:hover {
+            background-color: #ccc;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        #timer {
+            margin-top: 10px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="quiz-container">
+    <div id="timer">Time Remaining: <span id="time">60</span> seconds</div>
+    <div id="question-container"></div>
+    <div class="options" id="options-container"></div>
+    <button id="next-button" onclick="nextQuestion()" style="display: none;">Next Question</button>
+    <div id="result"></div>
+</div>
+
+<script>
+    let currentQuestion = 0;
+    let score = 0;
+    let timeRemaining = 60;
+    let timer;
+
+    const questions = [
+        {
+            question: "What is the capital of France?",
+            options: ["Paris", "Berlin", "Madrid"],
+            correctAnswer: "Paris"
+        },
+        {
+            question: "What is the largest planet in our solar system?",
+            options: ["Jupiter", "Mars", "Venus"],
+            correctAnswer: "Jupiter"
+        },
+        {
+            question: "Which programming language is often used for web development?",
+            options: ["Java", "Python", "JavaScript"],
+            correctAnswer: "JavaScript"
+        }
+    ];
+
+    function startQuiz() {
+        document.getElementById("timer").style.display = "block";
+        document.getElementById("next-button").style.display = "block";
+        displayQuestion();
+        timer = setInterval(updateTimer, 1000);
+    }
+
+    function displayQuestion() {
+        const currentQuestionObj = questions[currentQuestion];
+        document.getElementById("question-container").innerHTML = `<div class="question">${currentQuestionObj.question}</div>`;
+        document.getElementById("options-container").innerHTML = currentQuestionObj.options.map(option =>
+            `<div class="option" onclick="checkAnswer('${option}')">${option}</div>`
+        ).join("");
+    }
+
+    function checkAnswer(selectedOption) {
+        const currentQuestionObj = questions[currentQuestion];
+        if (selectedOption === currentQuestionObj.correctAnswer) {
+            score++;
+            document.getElementById("result").textContent = "Correct!";
+        } else {
+            document.getElementById("result").textContent = "Incorrect!";
+        }
+
+        // Disable further clicks on options
+        const options = document.querySelectorAll(".option");
+        options.forEach(option => option.onclick = null);
+
+        // Display next button
+        document.getElementById("next-button").style.display = "block";
+    }
+
+    function nextQuestion() {
+        // Move to the next question or display the result
+        currentQuestion++;
+        if (currentQuestion < questions.length) {
+            displayQuestion();
+            resetOptions();
+        } else {
+            clearInterval(timer);
+            document.getElementById("timer").style.display = "none";
+            document.getElementById("question-container").style.display = "none";
+            document.getElementById("options-container").style.display = "none";
+            document.getElementById("next-button").style.display = "none";
+            document.getElementById("result").textContent = `Your score: ${score} out of ${questions.length}`;
+        }
+    }
+
+    function resetOptions() {
+        const options = document.querySelectorAll(".option");
+        options.forEach(option => {
+            option.style.backgroundColor = "#ddd";
+            option.onclick = function() {
+                checkAnswer(option.textContent);
+            };
+        });
+        document.getElementById("result").textContent = "";
+    }
+
+    function updateTimer() {
+        timeRemaining--;
+        document.getElementById("time").textContent = timeRemaining;
+
+        if (timeRemaining <= 0) {
+            clearInterval(timer);
+            document.getElementById("timer").textContent = "Time's up!";
+            document.getElementById("next-button").style.display = "block";
+            resetOptions();
+        }
+    }
+
+    // Start the quiz when the page loads
+    window.onload = startQuiz;
+</script>
+
+</body>
+</html>
